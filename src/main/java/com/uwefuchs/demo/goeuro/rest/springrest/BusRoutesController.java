@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/direct")
 public class BusRoutesController
 {
 	private static final Logger LOG = LoggerFactory.getLogger(BusRoutesController.class);
@@ -19,12 +19,19 @@ public class BusRoutesController
 	@Autowired
 	private IBusRouteService busRouteService;
 
-	@GetMapping("/direct")
+	@GetMapping
 	public BusRouteInfo findDirectRoute(
 		@RequestParam(required = true, value = "dep_sid") Integer dep_sid,
 		@RequestParam(required = true, value = "arr_sid") Integer arr_sid)
 	{
 		LOG.info("calling busRouteService with dep_sid [{}] and arr_sid [{}]", dep_sid, arr_sid);
 		return busRouteService.lookUpBusRoute(dep_sid, arr_sid);
+	}
+
+	@GetMapping("/dir")
+	public BusRouteInfo findDirRoute()
+	{
+		LOG.info("calling busRouteService with dep_sid [{}] and arr_sid [{}]", "2", "5");
+		return busRouteService.lookUpBusRoute(2, 5);
 	}
 }
