@@ -1,5 +1,6 @@
 package com.uwefuchs.demo.goeuro.dataprocessing.filebased;
 
+import com.uwefuchs.demo.goeuro.dataprocessing.BusRouteDataFileUtil;
 import com.uwefuchs.demo.goeuro.model.api.BusRouteInfoResource;
 import com.uwefuchs.demo.goeuro.service.IBusRouteService;
 import java.util.Map;
@@ -35,7 +36,7 @@ public class FileBasedBusRouteService
   }
 
   @Override
-  public BusRouteInfoResource lookUpBusRoute(final Integer dep_sid, final Integer arr_sid) {
+  public BusRouteInfoResource existsSuitableBusRoute(final Integer dep_sid, final Integer arr_sid) {
     LOG.debug("Lookup direct bus-route with dep_sid {} and arr_sid {} ... ", dep_sid, arr_sid);
 
     final boolean eq = this.dataMap
@@ -65,6 +66,6 @@ public class FileBasedBusRouteService
    */
   @PostConstruct
   public void cacheBusRouteData() {
-		this.dataMap = BusRouteDataFileUtil.readAndCacheBusRouteData(this.pathname);
+    this.dataMap = BusRouteDataFileUtil.readAndCacheBusRouteData(this.pathname);
   }
 }

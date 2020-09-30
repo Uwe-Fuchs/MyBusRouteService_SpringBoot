@@ -23,7 +23,8 @@ public class BusRoutesController {
   public BusRouteInfoResource findDirectRoute(
       @RequestParam(required = true, value = "dep_sid") final Integer dep_sid,
       @RequestParam(required = true, value = "arr_sid") final Integer arr_sid) {
+    
     LOG.info("calling busRouteService with dep_sid [{}] and arr_sid [{}]", dep_sid, arr_sid);
-    return this.busRouteService.lookUpBusRoute(dep_sid, arr_sid);
+    return this.busRouteService.existsSuitableBusRoute(dep_sid, arr_sid);
   }
 }

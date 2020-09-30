@@ -10,12 +10,12 @@ import com.uwefuchs.demo.goeuro.model.api.BusRouteInfoResource;
 public interface IBusRouteService {
 
   /**
-   * looks up a bus-route containing dep_sid as start and arr_sid as arrival (i.e.: station with dept_id is BEFORE
-   * station with arr_id).
+   * checks if a bus-route exists for given dep_sid as start and arr_sid as arrival (i.e.: station with dept_id is
+   * BEFORE station with arr_id).
    *
    * @param dep_sid : department-station identifier.
    * @param arr_sid : arrival station identifier.
-   * @return direct bus-route, if exists.
+   * @return {@link BusRouteInfoResource} with given sid's and obtained exists-toggle.
    */
-  BusRouteInfoResource lookUpBusRoute(Integer dep_sid, Integer arr_sid);
+  BusRouteInfoResource existsSuitableBusRoute(Integer dep_sid, Integer arr_sid);
 }
