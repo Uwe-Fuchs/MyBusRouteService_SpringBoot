@@ -2,7 +2,7 @@ package com.uwefuchs.demo.goeuro.service.filebased;
 
 import com.uwefuchs.demo.goeuro.AbstractBusRouteChallengeTest;
 import com.uwefuchs.demo.goeuro.dataprocessing.filebased.FileBasedBusRouteService;
-import com.uwefuchs.demo.goeuro.domain.BusRouteInfo;
+import com.uwefuchs.demo.goeuro.model.api.BusRouteInfoResource;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -22,8 +22,8 @@ public class FileBasedBusRouteServiceTest
 		FileBasedBusRouteService service = new FileBasedBusRouteService();
 		service.setPathname(pathname);
 		service.cacheBusRouteData();
-		
-		BusRouteInfo info = service.lookUpBusRoute(3, 6);
+
+		BusRouteInfoResource info = service.lookUpBusRoute(3, 6);
 		assertTrue(info.getDirect_bus_route());
 		
 		info = service.lookUpBusRoute(6, 3);

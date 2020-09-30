@@ -1,6 +1,6 @@
 package com.uwefuchs.demo.goeuro.dataprocessing.filebased;
 
-import com.uwefuchs.demo.goeuro.domain.BusRouteInfo;
+import com.uwefuchs.demo.goeuro.model.api.BusRouteInfoResource;
 import com.uwefuchs.demo.goeuro.service.IBusRouteService;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -38,7 +38,7 @@ public class FileBasedBusRouteService
 	}
 
 	@Override
-	public BusRouteInfo lookUpBusRoute(Integer dep_sid, Integer arr_sid)
+	public BusRouteInfoResource lookUpBusRoute(Integer dep_sid, Integer arr_sid)
 	{
 		LOG.debug("Lookup direct bus-route with dep_sid {} and arr_sid {} ... ", dep_sid, arr_sid);
 		
@@ -46,8 +46,8 @@ public class FileBasedBusRouteService
 				.values()
 				.stream()
 				.anyMatch(m -> m.containsKey(dep_sid) && m.containsKey(arr_sid) && m.get(dep_sid) < m.get(arr_sid));
-		
-		BusRouteInfo info = new BusRouteInfo(dep_sid, arr_sid, eq);
+
+		BusRouteInfoResource info = new BusRouteInfoResource(dep_sid, arr_sid, eq);
 		
 		LOG.info("Returning busRouteInfo {}", info);
 		

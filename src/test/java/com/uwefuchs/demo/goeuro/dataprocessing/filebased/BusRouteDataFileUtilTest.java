@@ -31,14 +31,14 @@ public class BusRouteDataFileUtilTest
 		
 		busRoute = dataMap.get(1);
 		assertEquals(busRoute.size(), 4);		
-		assertEquals(busRoute.get(6), new Integer(2));
+		assertEquals(busRoute.get(6), Integer.valueOf(2));
 		assertNull(busRoute.get(7));
 		
 		pathname = createTempDataFile(Arrays.asList("3", "0 0 1 2 3 4", "1 3 1 6 5", "2 0 6 4"));
 		dataMap = BusRouteDataFileUtil.readAndCacheBusRouteData(pathname);
 		busRoute = dataMap.get(2);	
 		assertEquals(dataMap.size(), 3);
-		assertEquals(busRoute.get(0), new Integer(0));
+		assertEquals(busRoute.get(0), Integer.valueOf(0));
 	}
 
 	@Test
@@ -55,7 +55,7 @@ public class BusRouteDataFileUtilTest
 		
 		for (int lineId = 0; lineId < busRoute.size(); lineId++)
 		{
-			assertEquals(busRoute.get(lineId), new Integer(lineId));
+			assertEquals(busRoute.get(lineId), Integer.valueOf(lineId));
 		}
 	}
 

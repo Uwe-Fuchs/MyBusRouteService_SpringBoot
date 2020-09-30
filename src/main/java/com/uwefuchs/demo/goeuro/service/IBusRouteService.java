@@ -1,6 +1,6 @@
 package com.uwefuchs.demo.goeuro.service;
 
-import com.uwefuchs.demo.goeuro.domain.BusRouteInfo;
+import com.uwefuchs.demo.goeuro.model.api.BusRouteInfoResource;
 
 /**
  * A service containing bus-route-operations 
@@ -19,5 +19,5 @@ public interface IBusRouteService
 	 * 
 	 * @return direct bus-route, if exists.
 	 */
-	BusRouteInfo lookUpBusRoute(Integer dep_sid, Integer arr_sid);
+	BusRouteInfoResource lookUpBusRoute(Integer dep_sid, Integer arr_sid);
 }

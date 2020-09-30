@@ -1,6 +1,6 @@
 package com.uwefuchs.demo.goeuro.rest.springrest;
 
-import com.uwefuchs.demo.goeuro.domain.BusRouteInfo;
+import com.uwefuchs.demo.goeuro.model.api.BusRouteInfoResource;
 import com.uwefuchs.demo.goeuro.service.IBusRouteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,18 +20,11 @@ public class BusRoutesController
 	private IBusRouteService busRouteService;
 
 	@GetMapping
-	public BusRouteInfo findDirectRoute(
+	public BusRouteInfoResource findDirectRoute(
 		@RequestParam(required = true, value = "dep_sid") Integer dep_sid,
 		@RequestParam(required = true, value = "arr_sid") Integer arr_sid)
 	{
 		LOG.info("calling busRouteService with dep_sid [{}] and arr_sid [{}]", dep_sid, arr_sid);
 		return busRouteService.lookUpBusRoute(dep_sid, arr_sid);
-	}
-
-	@GetMapping("/dir")
-	public BusRouteInfo findDirRoute()
-	{
-		LOG.info("calling busRouteService with dep_sid [{}] and arr_sid [{}]", "2", "5");
-		return busRouteService.lookUpBusRoute(2, 5);
 	}
 }
