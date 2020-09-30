@@ -6,56 +6,48 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 /**
  * contains all information for a specific bus-route.
- * 
+ *
  * @author info@uwefuchs.com
  */
 @JsonInclude(value = Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class BusRouteInfoResource
-{
-	private Integer dep_sid;
-	private Integer arr_sid;
-	private Boolean direct_bus_route;
+public class BusRouteInfoResource {
 
-	private BusRouteInfoResource()
-	{
-		// Jackson
-	}
+  private Integer dep_sid;
+  private Integer arr_sid;
+  private Boolean direct_bus_route;
 
-	public BusRouteInfoResource(Integer dep_sid, Integer arr_sid, Boolean direct_bus_route)
-	{
-		this.dep_sid = dep_sid;
-		this.arr_sid = arr_sid;
-		this.direct_bus_route = direct_bus_route;
-	}
+  private BusRouteInfoResource() {
+    // Jackson
+  }
 
-	public Integer getDep_sid()
-	{
-		return dep_sid;
-	}
+  public BusRouteInfoResource(final Integer dep_sid, final Integer arr_sid, final Boolean direct_bus_route) {
+    this.dep_sid = dep_sid;
+    this.arr_sid = arr_sid;
+    this.direct_bus_route = direct_bus_route;
+  }
 
-	public void setDep_sid(Integer dep_sid)
-	{
-		this.dep_sid = dep_sid;
-	}
+  public Integer getDep_sid() {
+    return this.dep_sid;
+  }
 
-	public Integer getArr_sid()
-	{
-		return arr_sid;
-	}
+  public void setDep_sid(final Integer dep_sid) {
+    this.dep_sid = dep_sid;
+  }
 
-	public void setArr_sid(Integer arr_sid)
-	{
-		this.arr_sid = arr_sid;
-	}
+  public Integer getArr_sid() {
+    return this.arr_sid;
+  }
 
-	public Boolean getDirect_bus_route()
-	{
-		return direct_bus_route;
-	}
+  public void setArr_sid(final Integer arr_sid) {
+    this.arr_sid = arr_sid;
+  }
 
-	public void setDirect_bus_route(Boolean direct_bus_route)
-	{
-		this.direct_bus_route = direct_bus_route;
-	}
+  public Boolean getDirect_bus_route() {
+    return this.direct_bus_route;
+  }
+
+  public void setDirect_bus_route(final Boolean direct_bus_route) {
+    this.direct_bus_route = direct_bus_route;
+  }
 }
