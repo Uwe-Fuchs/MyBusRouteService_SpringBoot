@@ -11,7 +11,7 @@ public class BusRoute {
     public BusRoute(Integer busRouteId, List<Integer> stationIds) {
         Preconditions.checkNotNull(busRouteId, "busRouteId is required!");
         Preconditions.checkNotNull(stationIds, "list of stationIds is required!");
-        Preconditions.checkArgument(!stationIds.isEmpty(), "list of stationIds should contain entries!");
+        Preconditions.checkArgument(!stationIds.isEmpty(), "stationId-list should not be empty!");
         this.busRouteId = busRouteId;
         this.stationIds = stationIds;
     }
@@ -24,7 +24,7 @@ public class BusRoute {
         return stationIds;
     }
 
-    public boolean checkBusRoute(Integer dep_sid, Integer arr_sid) {
+    public boolean isSuitableBusRoute(Integer dep_sid, Integer arr_sid) {
         return stationIds.contains(dep_sid)
                 && stationIds.contains(arr_sid)
                 && stationIds.lastIndexOf(dep_sid) < stationIds.lastIndexOf(arr_sid);
