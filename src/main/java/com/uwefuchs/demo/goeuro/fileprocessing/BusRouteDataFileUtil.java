@@ -1,4 +1,4 @@
-package com.uwefuchs.demo.goeuro.dataprocessing;
+package com.uwefuchs.demo.goeuro.fileprocessing;
 
 import com.uwefuchs.demo.goeuro.exceptions.InconsistentDataException;
 import java.nio.file.Paths;
@@ -17,15 +17,15 @@ import org.apache.commons.lang3.Validate;
 public class BusRouteDataFileUtil {
 
   /**
-   * reads the data in the file with given pathname. Caches the data into the given {@link Map}.
+   * reads the data from the file with given pathname.
    *
    * @param pathname the pathname to the data-file.
    */
-  public static Map<Integer, Map<Integer, Integer>> readAndCacheBusRouteData(final String pathname) {
+  public static Map<Integer, Map<Integer, Integer>> createBusRouteDataCache(final String pathname) {
     Validate.notBlank(pathname, "path-name mus not be blank!");
 
     try (final Scanner scanner = new Scanner(Paths.get(pathname))) {
-      DataValidationUtil.assertFileNotEmpty(scanner, pathname);
+      BusRouteDataValidationUtil.assertFileNotEmpty(scanner, pathname);
       final int numberOfBusRoutes = scanner.nextInt();
       final Map<Integer, Map<Integer, Integer>> dataMap = new ConcurrentHashMap<>(numberOfBusRoutes);
 
@@ -33,8 +33,8 @@ public class BusRouteDataFileUtil {
         processSingleLine(scanner.nextLine(), dataMap);
       }
 
-      DataValidationUtil.assertNumberOfBusRoutesWithinBounds(dataMap);
-      DataValidationUtil.assertNumberOfBusRoutesAsAnnounced(dataMap, numberOfBusRoutes);
+      BusRouteDataValidationUtil.assertNumberOfBusRoutesWithinBounds(dataMap);
+      BusRouteDataValidationUtil.assertNumberOfBusRoutesAsAnnounced(dataMap, numberOfBusRoutes);
 
       return dataMap;
     } catch (final java.io.IOException ex) {
@@ -54,17 +54,17 @@ public class BusRouteDataFileUtil {
       }
 
       final int busRouteId = scanner.nextInt();
-      DataValidationUtil.assertUniqueBusRouteIds(dataMap, busRouteId);
+      BusRouteDataValidationUtil.assertUniqueBusRouteIds(dataMap, busRouteId);
 
       final Map<Integer, Integer> busRouteMap = new HashMap<>();
 
       for (int counter = 0; scanner.hasNext(); counter++) {
         final int stationId = scanner.nextInt();
-        DataValidationUtil.assertUniqueStationIdsInBusRoute(busRouteMap, stationId, busRouteId);
+        BusRouteDataValidationUtil.assertUniqueStationIdsInBusRoute(busRouteMap, stationId, busRouteId);
         busRouteMap.put(stationId, counter);
       }
 
-      DataValidationUtil.assertNumberOfStationsWithinBounds(busRouteMap, busRouteId);
+      BusRouteDataValidationUtil.assertNumberOfStationsWithinBounds(busRouteMap, busRouteId);
 
       dataMap.put(busRouteId, busRouteMap);
     }

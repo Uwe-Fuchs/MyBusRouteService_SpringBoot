@@ -4,7 +4,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.uwefuchs.demo.goeuro.AbstractBusRouteChallengeTest;
-import com.uwefuchs.demo.goeuro.dataprocessing.filebased.FileBasedBusRouteService;
+import com.uwefuchs.demo.goeuro.fileprocessing.filebased.FileBasedBusRouteService;
 import com.uwefuchs.demo.goeuro.model.api.BusRouteInfoResource;
 import java.io.IOException;
 import java.util.Arrays;

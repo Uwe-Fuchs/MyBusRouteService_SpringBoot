@@ -1,6 +1,6 @@
-package com.uwefuchs.demo.goeuro.dataprocessing.filebased;
+package com.uwefuchs.demo.goeuro.fileprocessing.filebased;
 
-import com.uwefuchs.demo.goeuro.dataprocessing.BusRouteDataFileUtil;
+import com.uwefuchs.demo.goeuro.fileprocessing.BusRouteDataFileUtil;
 import com.uwefuchs.demo.goeuro.model.api.BusRouteInfoResource;
 import com.uwefuchs.demo.goeuro.service.IBusRouteService;
 import java.util.Map;
@@ -66,6 +66,6 @@ public class FileBasedBusRouteService
    */
   @PostConstruct
   public void cacheBusRouteData() {
-    this.dataMap = BusRouteDataFileUtil.readAndCacheBusRouteData(this.pathname);
+    this.dataMap = BusRouteDataFileUtil.createBusRouteDataCache(this.pathname);
   }
 }
