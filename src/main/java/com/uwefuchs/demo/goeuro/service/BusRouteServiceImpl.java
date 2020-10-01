@@ -17,8 +17,6 @@ public class BusRouteServiceImpl implements IBusRouteService {
   public BusRouteInfoResource existsSuitableBusRoute(final Integer dep_sid, final Integer arr_sid) {
     final List<BusRoute> allBusRoutes = this.busRouteRepository.deliverAllBusRoutes();
 
-    final boolean hasAny = allBusRoutes.stream().anyMatch(r -> r.isSuitableBusRoute(dep_sid, arr_sid));
-
     return allBusRoutes
         .stream()
         .filter(r -> r.isSuitableBusRoute(dep_sid, arr_sid))

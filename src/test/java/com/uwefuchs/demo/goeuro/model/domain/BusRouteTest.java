@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 public class BusRouteTest {
 
-  static final Integer BUS_ROUTE_ID = 1;
+  static final Long BUS_ROUTE_ID = 1L;
   static final List<Integer> STATION_IDS = Arrays.asList(3, 1, 6);
   static final Integer NON_EXISTING_STATION = 111;
 

@@ -1,10 +1,9 @@
-package com.uwefuchs.demo.goeuro.service.filebased;
+package com.uwefuchs.demo.goeuro.fileprocessing.filebased;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.uwefuchs.demo.goeuro.AbstractBusRouteChallengeTest;
-import com.uwefuchs.demo.goeuro.fileprocessing.filebased.FileBasedBusRouteService;
 import com.uwefuchs.demo.goeuro.model.api.BusRouteInfoResource;
 import java.io.IOException;
 import java.util.Arrays;
@@ -17,7 +16,8 @@ public class FileBasedBusRouteServiceTest
   public void testLookUpBusRoute()
       throws IOException {
 
-    final String pathname = this.createTempDataFile(Arrays.asList("2", "0 0 1 2 3 4", "1 3 1 6 5"));
+    final String pathname = AbstractBusRouteChallengeTest
+        .createTempDataFile(Arrays.asList("2", "0 0 1 2 3 4", "1 3 1 6 5"));
     final FileBasedBusRouteService service = new FileBasedBusRouteService();
     service.setPathname(pathname);
     service.cacheBusRouteData();

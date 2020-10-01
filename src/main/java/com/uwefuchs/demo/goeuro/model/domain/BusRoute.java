@@ -5,10 +5,10 @@ import java.util.List;
 
 public class BusRoute {
 
-  private final Integer busRouteId;
+  private final Long busRouteId;
   private final List<Integer> stationIds;
 
-  public BusRoute(final Integer busRouteId, final List<Integer> stationIds) {
+  public BusRoute(final Long busRouteId, final List<Integer> stationIds) {
     Preconditions.checkNotNull(busRouteId, "busRouteId is required!");
     Preconditions.checkNotNull(stationIds, "list of stationIds is required!");
     Preconditions.checkArgument(!stationIds.isEmpty(), "stationId-list should not be empty!");
@@ -16,7 +16,7 @@ public class BusRoute {
     this.stationIds = stationIds;
   }
 
-  public Integer getBusRouteId() {
+  public Long getBusRouteId() {
     return this.busRouteId;
   }
 
