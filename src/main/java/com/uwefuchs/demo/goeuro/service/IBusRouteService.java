@@ -3,7 +3,7 @@ package com.uwefuchs.demo.goeuro.service;
 import com.uwefuchs.demo.goeuro.model.api.BusRouteInfoResource;
 
 /**
- * A service containing bus-route-operations (reading, maybe manipulating in a future step).
+ * A service containing bus-route-operations (filtering, maybe manipulating in a future step).
  *
  * @author info@uwefuchs.com
  */
@@ -15,7 +15,7 @@ public interface IBusRouteService {
    *
    * @param dep_sid : department-station identifier.
    * @param arr_sid : arrival station identifier.
-   * @return {@link BusRouteInfoResource} with given sid's and obtained exists-toggle.
+   * @return {@link BusRouteInfoResource} with given sid's and examination-result.
    */
   BusRouteInfoResource existsSuitableBusRoute(Integer dep_sid, Integer arr_sid);
 }
