@@ -1,5 +1,6 @@
 package com.uwefuchs.demo.goeuro.fileprocessing;
 
+import com.uwefuchs.demo.goeuro.exceptions.DataContraintViolationException;
 import com.uwefuchs.demo.goeuro.exceptions.InconsistentDataException;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -16,6 +17,12 @@ import org.apache.commons.lang3.Validate;
  */
 public class BusRouteDataFileUtil {
 
+  public static final int MIN_NUMBER_OF_BUS_ROUTES = 1;
+  public static final long MAX_NUMBER_OF_BUS_ROUTES = 100000L;
+  public static final long MAX_NUMBER_OF_STATIONS = 1000000L;
+  public static final int MAX_NUMBER_OF_STATIONS_PER_ROUTE = 1000;
+  public static final int MIN_NUMBER_OF_STATIONS_PER_ROUTE = 2;
+
   /**
    * reads the data from the file with given pathname.
    *
@@ -25,7 +32,10 @@ public class BusRouteDataFileUtil {
     Validate.notBlank(pathname, "path-name mus not be blank!");
 
     try (final Scanner scanner = new Scanner(Paths.get(pathname))) {
-      BusRouteDataValidationUtil.assertFileNotEmpty(scanner, pathname);
+      if (!scanner.hasNext()) {
+        throw new InconsistentDataException(String.format("No data found in given file [%s]", pathname));
+      }
+
       final int numberOfBusRoutes = scanner.nextInt();
       final Map<Integer, Map<Integer, Integer>> dataMap = new ConcurrentHashMap<>(numberOfBusRoutes);
 
@@ -33,8 +43,8 @@ public class BusRouteDataFileUtil {
         processSingleLine(scanner.nextLine(), dataMap);
       }
 
-      BusRouteDataValidationUtil.assertNumberOfBusRoutesWithinBounds(dataMap);
-      BusRouteDataValidationUtil.assertNumberOfBusRoutesAsAnnounced(dataMap, numberOfBusRoutes);
+      assertNumberOfBusRoutesWithinBounds(dataMap.size());
+      assertNumberOfBusRoutesAsAnnounced(dataMap, numberOfBusRoutes);
 
       return dataMap;
     } catch (final java.io.IOException ex) {
@@ -54,19 +64,50 @@ public class BusRouteDataFileUtil {
       }
 
       final int busRouteId = scanner.nextInt();
-      BusRouteDataValidationUtil.assertUniqueBusRouteIds(dataMap, busRouteId);
+      if (dataMap.containsKey(busRouteId)) {
+        throw new InconsistentDataException(String.format("non-unique bus-route-id: [%d]", busRouteId));
+      }
 
       final Map<Integer, Integer> busRouteMap = new HashMap<>();
 
       for (int counter = 0; scanner.hasNext(); counter++) {
         final int stationId = scanner.nextInt();
-        BusRouteDataValidationUtil.assertUniqueStationIdsInBusRoute(busRouteMap, stationId, busRouteId);
+        if (busRouteMap.containsKey(stationId)) {
+          throw new InconsistentDataException(
+              String.format("double occurrence of station-id [%d] in bus-route [%d]", stationId, busRouteId));
+        }
+
         busRouteMap.put(stationId, counter);
       }
 
-      BusRouteDataValidationUtil.assertNumberOfStationsWithinBounds(busRouteMap, busRouteId);
+      assertStationsPerRouteWithinBounds(busRouteMap.size());
 
       dataMap.put(busRouteId, busRouteMap);
+    }
+  }
+
+  private static void assertNumberOfBusRoutesWithinBounds(final int numberOfBusRoutes) {
+    if (numberOfBusRoutes < MIN_NUMBER_OF_BUS_ROUTES || numberOfBusRoutes > MAX_NUMBER_OF_BUS_ROUTES) {
+      throw new DataContraintViolationException(
+          String.format("Number of bus-routes not within bounds. Minimum is %d, maximum is %d, given was %d",
+              MIN_NUMBER_OF_BUS_ROUTES, MAX_NUMBER_OF_BUS_ROUTES, numberOfBusRoutes));
+    }
+  }
+
+  private static void assertNumberOfBusRoutesAsAnnounced(final Map<Integer, Map<Integer, Integer>> dataMap,
+      final int numberOfBusRoutes) {
+    if (numberOfBusRoutes != dataMap.size()) {
+      throw new InconsistentDataException(
+          String.format("Real number [%d] of bus-routes differs from announced number [%d]", dataMap.size(),
+              numberOfBusRoutes));
+    }
+  }
+
+  private static void assertStationsPerRouteWithinBounds(final int numberOfStations) {
+    if (numberOfStations < MIN_NUMBER_OF_STATIONS_PER_ROUTE || numberOfStations > MAX_NUMBER_OF_STATIONS_PER_ROUTE) {
+      throw new DataContraintViolationException(
+          String.format("Number of stations not within bounds. Minimum is %d, maximum is %d, given was %d",
+              MIN_NUMBER_OF_STATIONS_PER_ROUTE, MAX_NUMBER_OF_STATIONS_PER_ROUTE, numberOfStations));
     }
   }
 }

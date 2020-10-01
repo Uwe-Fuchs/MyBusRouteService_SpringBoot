@@ -96,14 +96,14 @@ public class BusRouteDataFileUtilTest
   @Test(expected = DataContraintViolationException.class)
   public void testTooManyStations()
       throws IOException {
-    String testLine = this.generateBusRoute(1, BusRouteDataConstraints.MAX_NUMBER_OF_STATIONS_PER_ROUTE);
+    String testLine = this.generateBusRoute(1, BusRouteDataFileUtil.MAX_NUMBER_OF_STATIONS_PER_ROUTE);
     String pathname = this.createTempDataFile(Arrays.asList("1", testLine));
     final Map<Integer, Map<Integer, Integer>> dataMap = BusRouteDataFileUtil.createBusRouteDataCache(pathname);
 
     final Map<Integer, Integer> busRoute = dataMap.get(1);
-    assertEquals(busRoute.size(), BusRouteDataConstraints.MAX_NUMBER_OF_STATIONS_PER_ROUTE);
+    assertEquals(busRoute.size(), BusRouteDataFileUtil.MAX_NUMBER_OF_STATIONS_PER_ROUTE);
 
-    testLine = this.generateBusRoute(1, BusRouteDataConstraints.MAX_NUMBER_OF_STATIONS_PER_ROUTE + 1);
+    testLine = this.generateBusRoute(1, BusRouteDataFileUtil.MAX_NUMBER_OF_STATIONS_PER_ROUTE + 1);
     pathname = this.createTempDataFile(Arrays.asList("1", testLine));
     BusRouteDataFileUtil.createBusRouteDataCache(pathname);
   }
@@ -111,14 +111,14 @@ public class BusRouteDataFileUtilTest
   @Test(expected = DataContraintViolationException.class)
   public void testTooLessStations()
       throws IOException {
-    String testLine = this.generateBusRoute(1, BusRouteDataConstraints.MIN_NUMBER_OF_STATIONS_PER_ROUTE);
+    String testLine = this.generateBusRoute(1, BusRouteDataFileUtil.MIN_NUMBER_OF_STATIONS_PER_ROUTE);
     String pathname = this.createTempDataFile(Arrays.asList("1", testLine));
     final Map<Integer, Map<Integer, Integer>> dataMap = BusRouteDataFileUtil.createBusRouteDataCache(pathname);
 
     final Map<Integer, Integer> busRoute = dataMap.get(1);
-    assertEquals(busRoute.size(), BusRouteDataConstraints.MIN_NUMBER_OF_STATIONS_PER_ROUTE);
+    assertEquals(busRoute.size(), BusRouteDataFileUtil.MIN_NUMBER_OF_STATIONS_PER_ROUTE);
 
-    testLine = this.generateBusRoute(1, BusRouteDataConstraints.MIN_NUMBER_OF_STATIONS_PER_ROUTE - 1);
+    testLine = this.generateBusRoute(1, BusRouteDataFileUtil.MIN_NUMBER_OF_STATIONS_PER_ROUTE - 1);
     pathname = this.createTempDataFile(Arrays.asList("1", testLine));
     BusRouteDataFileUtil.createBusRouteDataCache(pathname);
   }
@@ -139,13 +139,13 @@ public class BusRouteDataFileUtilTest
   @Test(expected = DataContraintViolationException.class)
   public void testTooManyBusRoutes()
       throws IOException {
-    List<String> testData = this.generateListOfBusRoutes(BusRouteDataConstraints.MAX_NUMBER_OF_BUS_ROUTES, 100);
+    List<String> testData = this.generateListOfBusRoutes(BusRouteDataFileUtil.MAX_NUMBER_OF_BUS_ROUTES, 100);
     String pathname = this.createTempDataFile(testData);
     final Map<Integer, Map<Integer, Integer>> dataMap = BusRouteDataFileUtil.createBusRouteDataCache(pathname);
 
-    assertEquals(BusRouteDataConstraints.MAX_NUMBER_OF_BUS_ROUTES, dataMap.size());
+    assertEquals(BusRouteDataFileUtil.MAX_NUMBER_OF_BUS_ROUTES, dataMap.size());
 
-    testData = this.generateListOfBusRoutes(BusRouteDataConstraints.MAX_NUMBER_OF_BUS_ROUTES + 1, 100);
+    testData = this.generateListOfBusRoutes(BusRouteDataFileUtil.MAX_NUMBER_OF_BUS_ROUTES + 1, 100);
     pathname = this.createTempDataFile(testData);
     BusRouteDataFileUtil.createBusRouteDataCache(pathname);
   }
