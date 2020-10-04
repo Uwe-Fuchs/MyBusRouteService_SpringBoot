@@ -1,27 +1,14 @@
 package com.uwefuchs.demo.goeuro;
 
 import com.uwefuchs.demo.goeuro.model.domain.BusRoute;
-import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import org.apache.commons.io.filefilter.WildcardFileFilter;
-import org.junit.After;
 
-public abstract class AbstractBusRouteChallengeTest {
-
-  @After
-  public void doAfter() throws IOException {
-    final File dir = new File(System.getProperty("java.io.tmpdir"));
-    final FileFilter fileFilter = new WildcardFileFilter("testdata*.tmp");
-    Arrays.asList(dir.listFiles(fileFilter))
-        .forEach(File::delete);
-  }
+public final class FileBasedTestHelper {
 
   public static String createTempDataFile(final List<String> data) throws IOException {
     final Path file = Files.createTempFile("testdata", ".tmp");
