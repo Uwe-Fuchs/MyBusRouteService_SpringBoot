@@ -1,21 +1,10 @@
 package com.uwefuchs.demo.goeuro;
 
 import com.uwefuchs.demo.goeuro.model.domain.BusRoute;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class FileBasedTestHelper {
-
-  public static String createTempDataFile(final List<String> data) throws IOException {
-    final Path file = Files.createTempFile("testdata", ".tmp");
-    Files.write(file, data, StandardCharsets.UTF_8);
-
-    return file.toString();
-  }
+public class BusRouteDataTestHelper {
 
   public static String generateBusRoute(final long routeId, final int count) {
     final StringBuilder sb = new StringBuilder()

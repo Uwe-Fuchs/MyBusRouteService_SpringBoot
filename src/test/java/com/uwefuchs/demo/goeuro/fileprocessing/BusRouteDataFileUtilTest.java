@@ -1,67 +1,70 @@
 package com.uwefuchs.demo.goeuro.fileprocessing;
 
+import static com.uwefuchs.demo.goeuro.fileprocessing.FileOperationsHelper.createTempDataFile;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static com.uwefuchs.demo.goeuro.FileBasedTestHelper.*;
 
-import com.uwefuchs.demo.goeuro.exceptions.DataContraintViolationException;
+import com.uwefuchs.demo.goeuro.BusRouteDataTestHelper;
+import com.uwefuchs.demo.goeuro.exceptions.DataConstraintViolationException;
 import com.uwefuchs.demo.goeuro.exceptions.InconsistentDataException;
-import java.io.File;
-import java.io.FileFilter;
+import com.uwefuchs.demo.goeuro.model.domain.BusRoute;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class BusRouteDataFileUtilTest {
 
   @After
-  public void doAfter() throws IOException {
-    final File dir = new File(System.getProperty("java.io.tmpdir"));
-    final FileFilter fileFilter = new WildcardFileFilter("testdata*.tmp");
-    Arrays.asList(dir.listFiles(fileFilter))
-        .forEach(File::delete);
+  public void doAfter() {
+    FileOperationsHelper.deleteTmpFiles();
   }
 
   @Test
-  public void testReadAndCacheBusRouteData()
+  public void shouldCreateBusRouteListFromFile()
       throws IOException {
     String pathname = createTempDataFile(Arrays.asList("2", "0 0 1 2 3 4", "1 3 1 6 5"));
-    Map<Integer, Map<Integer, Integer>> dataMap = BusRouteDataFileUtil.createBusRouteDataCache(pathname);
-    assertEquals(dataMap.size(), 2);
+    List<BusRoute> busRouteList = BusRouteDataFileUtil.createBusRouteDataCache(pathname);
+    assertEquals(busRouteList.size(), 2);
 
-    Map<Integer, Integer> busRoute = dataMap.get(0);
-    assertEquals(busRoute.size(), 5);
+    BusRoute aBusRoute = busRouteList.get(0);
+    assertEquals(aBusRoute.getStationIds().size(), 5);
+    assertEquals(aBusRoute.getStationIds().get(0), Integer.valueOf(0));
+    assertEquals(aBusRoute.getStationIds().get(1), Integer.valueOf(1));
+    assertEquals(aBusRoute.getStationIds().get(2), Integer.valueOf(2));
+    assertEquals(aBusRoute.getStationIds().get(3), Integer.valueOf(3));
+    assertEquals(aBusRoute.getStationIds().get(4), Integer.valueOf(4));
 
-    busRoute = dataMap.get(1);
-    assertEquals(busRoute.size(), 4);
-    assertEquals(busRoute.get(6), Integer.valueOf(2));
-    assertNull(busRoute.get(7));
+    aBusRoute = busRouteList.get(1);
+    assertEquals(aBusRoute.getStationIds().size(), 4);
+    assertEquals(aBusRoute.getStationIds().get(0), Integer.valueOf(3));
+    assertEquals(aBusRoute.getStationIds().get(1), Integer.valueOf(1));
+    assertEquals(aBusRoute.getStationIds().get(2), Integer.valueOf(6));
+    assertEquals(aBusRoute.getStationIds().get(3), Integer.valueOf(5));
 
     pathname = createTempDataFile(Arrays.asList("3", "0 0 1 2 3 4", "1 3 1 6 5", "2 0 6 4"));
-    dataMap = BusRouteDataFileUtil.createBusRouteDataCache(pathname);
-    busRoute = dataMap.get(2);
-    assertEquals(dataMap.size(), 3);
-    assertEquals(busRoute.get(0), Integer.valueOf(0));
+    busRouteList = BusRouteDataFileUtil.createBusRouteDataCache(pathname);
+    assertEquals(busRouteList.size(), 3);
+    assertEquals(busRouteList.get(0).getStationIds().size(), 5);
+    assertEquals(busRouteList.get(1).getStationIds().size(), 4);
+    assertEquals(busRouteList.get(2).getStationIds().size(), 3);
   }
 
   @Test
   public void testProcessSingleLine()
       throws IOException {
     final String pathname = createTempDataFile(Arrays.asList("1", "0 0 1 2 3 4"));
-    final Map<Integer, Map<Integer, Integer>> dataMap = BusRouteDataFileUtil.createBusRouteDataCache(pathname);
+    final List<BusRoute> busRouteList = BusRouteDataFileUtil.createBusRouteDataCache(pathname);
 
-    assertEquals(dataMap.size(), 1);
+    assertEquals(busRouteList.size(), 1);
 
-    final Map<Integer, Integer> busRoute = dataMap.get(0);
-    assertEquals(busRoute.size(), 5);
+    final BusRoute aBusRoute = busRouteList.get(0);
+    assertEquals(aBusRoute.getStationIds().size(), 5);
 
-    for (int lineId = 0; lineId < busRoute.size(); lineId++) {
-      assertEquals(busRoute.get(lineId), Integer.valueOf(lineId));
+    for (int lineId = 0; lineId < aBusRoute.getStationIds().size(); lineId++) {
+      assertEquals(aBusRoute.getStationIds().get(lineId), Integer.valueOf(lineId));
     }
   }
 
@@ -75,89 +78,63 @@ public class BusRouteDataFileUtilTest {
     BusRouteDataFileUtil.createBusRouteDataCache("someInvalidPathName");
   }
 
-  @Test(expected = DataContraintViolationException.class)
+  @Test(expected = DataConstraintViolationException.class)
   public void testWithoutStations()
       throws IOException {
     final String pathname = createTempDataFile(Arrays.asList("1", "1"));
     BusRouteDataFileUtil.createBusRouteDataCache(pathname);
   }
 
-  @Test(expected = InconsistentDataException.class)
+  @Test(expected = DataConstraintViolationException.class)
   public void testWithNonUniqueBusRouteIds()
       throws IOException {
-    String testFile = createTempDataFile(Arrays.asList("2", "1 1 2 3 4 5", "2 6 7 8 9 10"));
-    final Map<Integer, Map<Integer, Integer>> dataMap = BusRouteDataFileUtil.createBusRouteDataCache(testFile);
-    assertEquals(2, dataMap.size());
-
-    testFile = createTempDataFile(Arrays.asList("2", "1 1 2 3 4 5", "1 6 7 8 9 10"));
+    String testFile = createTempDataFile(Arrays.asList("2", "0 1 2", "0 3 4"));
     BusRouteDataFileUtil.createBusRouteDataCache(testFile);
   }
 
-  @Test(expected = InconsistentDataException.class)
+  @Test(expected = DataConstraintViolationException.class)
   public void testWithNonUniqueStationIds()
       throws IOException {
-    String testFile = createTempDataFile(Arrays.asList("1", "0 0 1 2 3 4"));
-    final Map<Integer, Map<Integer, Integer>> dataMap = BusRouteDataFileUtil.createBusRouteDataCache(testFile);
-    assertEquals(1, dataMap.size());
-
-    testFile = createTempDataFile(Arrays.asList("1", "0 0 1 1 3 4"));
+    String testFile = createTempDataFile(Arrays.asList("1", "0 0 1 1 3 4"));
     BusRouteDataFileUtil.createBusRouteDataCache(testFile);
   }
 
-  @Test(expected = DataContraintViolationException.class)
+  @Test(expected = DataConstraintViolationException.class)
   public void testTooManyStations()
       throws IOException {
-    String testLine = generateBusRoute(1, BusRouteDataFileUtil.MAX_NUMBER_OF_STATIONS_PER_ROUTE);
+    String testLine = BusRouteDataTestHelper.generateBusRoute(1, BusRouteDataFileUtil.MAX_NUMBER_OF_STATIONS_PER_ROUTE + 1);
     String pathname = createTempDataFile(Arrays.asList("1", testLine));
-    final Map<Integer, Map<Integer, Integer>> dataMap = BusRouteDataFileUtil.createBusRouteDataCache(pathname);
-
-    final Map<Integer, Integer> busRoute = dataMap.get(1);
-    assertEquals(busRoute.size(), BusRouteDataFileUtil.MAX_NUMBER_OF_STATIONS_PER_ROUTE);
-
-    testLine = generateBusRoute(1, BusRouteDataFileUtil.MAX_NUMBER_OF_STATIONS_PER_ROUTE + 1);
-    pathname = createTempDataFile(Arrays.asList("1", testLine));
     BusRouteDataFileUtil.createBusRouteDataCache(pathname);
   }
 
-  @Test(expected = DataContraintViolationException.class)
+  @Test(expected = DataConstraintViolationException.class)
   public void testTooLessStations()
       throws IOException {
-    String testLine = generateBusRoute(1, BusRouteDataFileUtil.MIN_NUMBER_OF_STATIONS_PER_ROUTE);
+    String testLine = BusRouteDataTestHelper.generateBusRoute(1, BusRouteDataFileUtil.MIN_NUMBER_OF_STATIONS_PER_ROUTE - 1);
     String pathname = createTempDataFile(Arrays.asList("1", testLine));
-    final Map<Integer, Map<Integer, Integer>> dataMap = BusRouteDataFileUtil.createBusRouteDataCache(pathname);
-
-    final Map<Integer, Integer> busRoute = dataMap.get(1);
-    assertEquals(busRoute.size(), BusRouteDataFileUtil.MIN_NUMBER_OF_STATIONS_PER_ROUTE);
-
-    testLine = generateBusRoute(1, BusRouteDataFileUtil.MIN_NUMBER_OF_STATIONS_PER_ROUTE - 1);
-    pathname = createTempDataFile(Arrays.asList("1", testLine));
     BusRouteDataFileUtil.createBusRouteDataCache(pathname);
   }
 
-  @Test(expected = DataContraintViolationException.class)
+  @Test(expected = DataConstraintViolationException.class)
   public void testTooLessBusRoutes()
       throws IOException {
-    final List<String> testData = generateListOfBusRoutes(1, 100);
+    final List<String> testData = BusRouteDataTestHelper.generateListOfBusRoutes(1, 100);
     String pathname = createTempDataFile(testData);
-    final Map<Integer, Map<Integer, Integer>> dataMap = BusRouteDataFileUtil.createBusRouteDataCache(pathname);
+    final List<BusRoute> busRouteList = BusRouteDataFileUtil.createBusRouteDataCache(pathname);
 
-    assertEquals(1, dataMap.size());
+    assertEquals(1, busRouteList.size());
 
     pathname = createTempDataFile(Arrays.asList("0", ""));
     BusRouteDataFileUtil.createBusRouteDataCache(pathname);
   }
 
-  @Test(expected = DataContraintViolationException.class)
+  @Ignore
+  @Test(expected = DataConstraintViolationException.class)
   public void testTooManyBusRoutes()
       throws IOException {
-    List<String> testData = generateListOfBusRoutes(BusRouteDataFileUtil.MAX_NUMBER_OF_BUS_ROUTES, 100);
+    List<String> testData = BusRouteDataTestHelper
+        .generateListOfBusRoutes(BusRouteDataFileUtil.MAX_NUMBER_OF_BUS_ROUTES + 1, 100);
     String pathname = createTempDataFile(testData);
-    final Map<Integer, Map<Integer, Integer>> dataMap = BusRouteDataFileUtil.createBusRouteDataCache(pathname);
-
-    assertEquals(BusRouteDataFileUtil.MAX_NUMBER_OF_BUS_ROUTES, dataMap.size());
-
-    testData = generateListOfBusRoutes(BusRouteDataFileUtil.MAX_NUMBER_OF_BUS_ROUTES + 1, 100);
-    pathname = createTempDataFile(testData);
     BusRouteDataFileUtil.createBusRouteDataCache(pathname);
   }
 

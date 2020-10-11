@@ -1,13 +1,14 @@
 package com.uwefuchs.demo.goeuro.fileprocessing;
 
-import com.uwefuchs.demo.goeuro.exceptions.DataContraintViolationException;
+import com.uwefuchs.demo.goeuro.exceptions.DataConstraintViolationException;
 import com.uwefuchs.demo.goeuro.exceptions.InconsistentDataException;
+import com.uwefuchs.demo.goeuro.model.domain.BusRoute;
 import java.nio.file.Paths;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.Validate;
 
 /**
@@ -18,8 +19,8 @@ import org.apache.commons.lang3.Validate;
 public class BusRouteDataFileUtil {
 
   public static final int MIN_NUMBER_OF_BUS_ROUTES = 1;
-  public static final long MAX_NUMBER_OF_BUS_ROUTES = 100000L;
-  public static final long MAX_NUMBER_OF_STATIONS = 1000000L;
+  public static final long MAX_NUMBER_OF_BUS_ROUTES = 100000;
+  public static final long MAX_NUMBER_OF_STATIONS = 1000000;
   public static final int MAX_NUMBER_OF_STATIONS_PER_ROUTE = 1000;
   public static final int MIN_NUMBER_OF_STATIONS_PER_ROUTE = 2;
 
@@ -28,7 +29,7 @@ public class BusRouteDataFileUtil {
    *
    * @param pathname the pathname to the data-file.
    */
-  public static Map<Integer, Map<Integer, Integer>> createBusRouteDataCache(final String pathname) {
+  public static List<BusRoute> createBusRouteDataCache(final String pathname) {
     Validate.notBlank(pathname, "path-name mus not be blank!");
 
     try (final Scanner scanner = new Scanner(Paths.get(pathname))) {
@@ -37,16 +38,16 @@ public class BusRouteDataFileUtil {
       }
 
       final int numberOfBusRoutes = scanner.nextInt();
-      final Map<Integer, Map<Integer, Integer>> dataMap = new ConcurrentHashMap<>(numberOfBusRoutes);
+      final List<BusRoute> busRouteList = new ArrayList<>(numberOfBusRoutes);
 
       while (scanner.hasNextLine()) {
-        processSingleLine(scanner.nextLine(), dataMap);
+        processSingleLine(scanner.nextLine(), busRouteList);
       }
 
-      assertNumberOfBusRoutesWithinBounds(dataMap.size());
-      assertNumberOfBusRoutesAsAnnounced(dataMap, numberOfBusRoutes);
+      assertNumberOfBusRoutesWithinBounds(busRouteList.size());
+      assertNumberOfBusRoutesAsAnnounced(busRouteList, numberOfBusRoutes);
 
-      return dataMap;
+      return busRouteList;
     } catch (final java.io.IOException ex) {
       throw new com.uwefuchs.demo.goeuro.exceptions.IOException("IOException when reading data-file!", ex);
     } catch (final InputMismatchException ex) {
@@ -54,7 +55,7 @@ public class BusRouteDataFileUtil {
     }
   }
 
-  private static void processSingleLine(final String aLine, final Map<Integer, Map<Integer, Integer>> dataMap) {
+  private static void processSingleLine(final String aLine, final List<BusRoute> busRouteList) {
     // use a second Scanner to parse the content of each line
     try (final Scanner scanner = new Scanner(aLine)) {
       scanner.useDelimiter(" ");
@@ -63,51 +64,61 @@ public class BusRouteDataFileUtil {
         return;
       }
 
-      final int busRouteId = scanner.nextInt();
-      if (dataMap.containsKey(busRouteId)) {
-        throw new InconsistentDataException(String.format("non-unique bus-route-id: [%d]", busRouteId));
-      }
+      final long busRouteId = scanner.nextLong();
+      assertUniqueBusRouteId(busRouteList, busRouteId);
 
-      final Map<Integer, Integer> busRouteMap = new HashMap<>();
+      final List<Integer> stationIdList = new ArrayList<>();
 
-      for (int counter = 0; scanner.hasNext(); counter++) {
+      while (scanner.hasNext()) {
         final int stationId = scanner.nextInt();
-        if (busRouteMap.containsKey(stationId)) {
-          throw new InconsistentDataException(
-              String.format("double occurrence of station-id [%d] in bus-route [%d]", stationId, busRouteId));
-        }
-
-        busRouteMap.put(stationId, counter);
+        assertUniqueStationId(stationIdList, stationId);
+        stationIdList.add(stationId);
       }
 
-      assertStationsPerRouteWithinBounds(busRouteMap.size());
-
-      dataMap.put(busRouteId, busRouteMap);
+      assertStationsPerRouteWithinBounds(stationIdList.size());
+      busRouteList.add(new BusRoute(busRouteId, stationIdList));
     }
   }
 
   private static void assertNumberOfBusRoutesWithinBounds(final int numberOfBusRoutes) {
     if (numberOfBusRoutes < MIN_NUMBER_OF_BUS_ROUTES || numberOfBusRoutes > MAX_NUMBER_OF_BUS_ROUTES) {
-      throw new DataContraintViolationException(
+      throw new DataConstraintViolationException(
           String.format("Number of bus-routes not within bounds. Minimum is %d, maximum is %d, given was %d",
               MIN_NUMBER_OF_BUS_ROUTES, MAX_NUMBER_OF_BUS_ROUTES, numberOfBusRoutes));
     }
   }
 
-  private static void assertNumberOfBusRoutesAsAnnounced(final Map<Integer, Map<Integer, Integer>> dataMap,
+  private static void assertNumberOfBusRoutesAsAnnounced(final List<BusRoute> busRouteList,
       final int numberOfBusRoutes) {
-    if (numberOfBusRoutes != dataMap.size()) {
+    if (numberOfBusRoutes != busRouteList.size()) {
       throw new InconsistentDataException(
-          String.format("Real number [%d] of bus-routes differs from announced number [%d]", dataMap.size(),
+          String.format("Real number [%d] of bus-routes differs from announced number [%d]", busRouteList.size(),
               numberOfBusRoutes));
     }
   }
 
   private static void assertStationsPerRouteWithinBounds(final int numberOfStations) {
     if (numberOfStations < MIN_NUMBER_OF_STATIONS_PER_ROUTE || numberOfStations > MAX_NUMBER_OF_STATIONS_PER_ROUTE) {
-      throw new DataContraintViolationException(
+      throw new DataConstraintViolationException(
           String.format("Number of stations not within bounds. Minimum is %d, maximum is %d, given was %d",
               MIN_NUMBER_OF_STATIONS_PER_ROUTE, MAX_NUMBER_OF_STATIONS_PER_ROUTE, numberOfStations));
     }
+  }
+
+  private static void assertUniqueStationId(final List<Integer> stationIdList, final int stationId) {
+    if (stationIdList.contains(stationId)) {
+      throw new DataConstraintViolationException(
+          String.format("double occurrence of station-id [%d]", stationId));
+    }
+  }
+
+  private static void assertUniqueBusRouteId(final List<BusRoute> busRouteList, final long busRouteId) {
+    busRouteList.forEach(b -> {
+      if (b.getBusRouteId().equals(busRouteId)) {
+        throw new DataConstraintViolationException(
+            String.format("Number of stations not within bounds. Minimum is %d, maximum is %d, given was %d",
+                MIN_NUMBER_OF_STATIONS_PER_ROUTE, MAX_NUMBER_OF_STATIONS_PER_ROUTE, busRouteId));
+      }
+    });
   }
 }
