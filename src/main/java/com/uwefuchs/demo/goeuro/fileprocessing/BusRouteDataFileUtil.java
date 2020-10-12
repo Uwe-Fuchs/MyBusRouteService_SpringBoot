@@ -30,7 +30,7 @@ public class BusRouteDataFileUtil {
    * @param pathname the pathname to the data-file.
    */
   public static List<BusRoute> createBusRouteDataCache(final String pathname) {
-    Validate.notBlank(pathname, "path-name mus not be blank!");
+    Validate.notBlank(pathname, "path-name is required!");
 
     try (final Scanner scanner = new Scanner(Paths.get(pathname))) {
       if (!scanner.hasNext()) {
@@ -82,7 +82,7 @@ public class BusRouteDataFileUtil {
 
   private static void assertNumberOfBusRoutesWithinBounds(final int numberOfBusRoutes) {
     if (numberOfBusRoutes < MIN_NUMBER_OF_BUS_ROUTES || numberOfBusRoutes > MAX_NUMBER_OF_BUS_ROUTES) {
-      throw new DataConstraintViolationException(
+      throw new InconsistentDataException(
           String.format("Number of bus-routes not within bounds. Minimum is %d, maximum is %d, given was %d",
               MIN_NUMBER_OF_BUS_ROUTES, MAX_NUMBER_OF_BUS_ROUTES, numberOfBusRoutes));
     }
@@ -99,7 +99,7 @@ public class BusRouteDataFileUtil {
 
   private static void assertStationsPerRouteWithinBounds(final int numberOfStations) {
     if (numberOfStations < MIN_NUMBER_OF_STATIONS_PER_ROUTE || numberOfStations > MAX_NUMBER_OF_STATIONS_PER_ROUTE) {
-      throw new DataConstraintViolationException(
+      throw new InconsistentDataException(
           String.format("Number of stations not within bounds. Minimum is %d, maximum is %d, given was %d",
               MIN_NUMBER_OF_STATIONS_PER_ROUTE, MAX_NUMBER_OF_STATIONS_PER_ROUTE, numberOfStations));
     }
@@ -107,17 +107,14 @@ public class BusRouteDataFileUtil {
 
   private static void assertUniqueStationId(final List<Integer> stationIdList, final int stationId) {
     if (stationIdList.contains(stationId)) {
-      throw new DataConstraintViolationException(
-          String.format("double occurrence of station-id [%d]", stationId));
+      throw new DataConstraintViolationException(String.format("double occurrence of station-id [%d]", stationId));
     }
   }
 
   private static void assertUniqueBusRouteId(final List<BusRoute> busRouteList, final long busRouteId) {
     busRouteList.forEach(b -> {
       if (b.getBusRouteId().equals(busRouteId)) {
-        throw new DataConstraintViolationException(
-            String.format("Number of stations not within bounds. Minimum is %d, maximum is %d, given was %d",
-                MIN_NUMBER_OF_STATIONS_PER_ROUTE, MAX_NUMBER_OF_STATIONS_PER_ROUTE, busRouteId));
+        throw new DataConstraintViolationException(String.format("double occurrence of bus-route-id [%d]", busRouteId));
       }
     });
   }

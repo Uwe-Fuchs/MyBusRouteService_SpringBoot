@@ -1,7 +1,7 @@
 package com.uwefuchs.demo.goeuro.fileprocessing;
 
-import static com.uwefuchs.demo.goeuro.fileprocessing.FileOperationsHelper.createTempDataFile;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.BDDAssertions.then;
 
 import com.uwefuchs.demo.goeuro.BusRouteDataTestHelper;
 import com.uwefuchs.demo.goeuro.exceptions.DataConstraintViolationException;
@@ -11,158 +11,230 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.After;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 public class BusRouteDataFileUtilTest {
 
-  @After
+  @AfterEach
   public void doAfter() {
     FileOperationsHelper.deleteTmpFiles();
   }
 
   @Test
-  public void shouldCreateBusRouteListFromFile()
-      throws IOException {
-    String pathname = createTempDataFile(Arrays.asList("2", "0 0 1 2 3 4", "1 3 1 6 5"));
-    List<BusRoute> busRouteList = BusRouteDataFileUtil.createBusRouteDataCache(pathname);
-    assertEquals(busRouteList.size(), 2);
+  public void shouldCreateBusRouteListFromFile() throws IOException {
+    // given
+    String pathToTmpDataFile = FileOperationsHelper.createTempDataFile(Arrays.asList("3", "0 0 1 2 3 4", "1 3 1 6 5", "2 0 6 4"));
+
+    // when
+    List<BusRoute> busRouteList = BusRouteDataFileUtil.createBusRouteDataCache(pathToTmpDataFile);
+
+    // then
+    then(busRouteList.size()).isEqualTo(3);
 
     BusRoute aBusRoute = busRouteList.get(0);
-    assertEquals(aBusRoute.getStationIds().size(), 5);
-    assertEquals(aBusRoute.getStationIds().get(0), Integer.valueOf(0));
-    assertEquals(aBusRoute.getStationIds().get(1), Integer.valueOf(1));
-    assertEquals(aBusRoute.getStationIds().get(2), Integer.valueOf(2));
-    assertEquals(aBusRoute.getStationIds().get(3), Integer.valueOf(3));
-    assertEquals(aBusRoute.getStationIds().get(4), Integer.valueOf(4));
+    then(aBusRoute.getStationIds().size()).isEqualTo(5);
+    then(aBusRoute.getStationIds().get(0)).isEqualTo(0);
+    then(aBusRoute.getStationIds().get(1)).isEqualTo(1);
+    then(aBusRoute.getStationIds().get(2)).isEqualTo(2);
+    then(aBusRoute.getStationIds().get(3)).isEqualTo(3);
+    then(aBusRoute.getStationIds().get(4)).isEqualTo(4);
 
     aBusRoute = busRouteList.get(1);
-    assertEquals(aBusRoute.getStationIds().size(), 4);
-    assertEquals(aBusRoute.getStationIds().get(0), Integer.valueOf(3));
-    assertEquals(aBusRoute.getStationIds().get(1), Integer.valueOf(1));
-    assertEquals(aBusRoute.getStationIds().get(2), Integer.valueOf(6));
-    assertEquals(aBusRoute.getStationIds().get(3), Integer.valueOf(5));
+    then(aBusRoute.getStationIds().size()).isEqualTo(4);
+    then(aBusRoute.getStationIds().get(0)).isEqualTo(3);
+    then(aBusRoute.getStationIds().get(1)).isEqualTo(1);
+    then(aBusRoute.getStationIds().get(2)).isEqualTo(6);
+    then(aBusRoute.getStationIds().get(3)).isEqualTo(5);
 
-    pathname = createTempDataFile(Arrays.asList("3", "0 0 1 2 3 4", "1 3 1 6 5", "2 0 6 4"));
-    busRouteList = BusRouteDataFileUtil.createBusRouteDataCache(pathname);
-    assertEquals(busRouteList.size(), 3);
-    assertEquals(busRouteList.get(0).getStationIds().size(), 5);
-    assertEquals(busRouteList.get(1).getStationIds().size(), 4);
-    assertEquals(busRouteList.get(2).getStationIds().size(), 3);
+    aBusRoute = busRouteList.get(2);
+    then(aBusRoute.getStationIds().size()).isEqualTo(3);
+    then(aBusRoute.getStationIds().get(0)).isEqualTo(0);
+    then(aBusRoute.getStationIds().get(1)).isEqualTo(6);
+    then(aBusRoute.getStationIds().get(2)).isEqualTo(4);
   }
 
   @Test
-  public void testProcessSingleLine()
-      throws IOException {
-    final String pathname = createTempDataFile(Arrays.asList("1", "0 0 1 2 3 4"));
-    final List<BusRoute> busRouteList = BusRouteDataFileUtil.createBusRouteDataCache(pathname);
+  public void shouldProcessSingleLine() throws IOException {
+    // given
+    final String pathToTmpDataFile = FileOperationsHelper.createTempDataFile(Arrays.asList("1", "0 3 1 6 5"));
 
-    assertEquals(busRouteList.size(), 1);
+    // when
+    final List<BusRoute> busRouteList = BusRouteDataFileUtil.createBusRouteDataCache(pathToTmpDataFile);
 
+    // then
+    then(busRouteList.size()).isEqualTo(1);
     final BusRoute aBusRoute = busRouteList.get(0);
-    assertEquals(aBusRoute.getStationIds().size(), 5);
-
-    for (int lineId = 0; lineId < aBusRoute.getStationIds().size(); lineId++) {
-      assertEquals(aBusRoute.getStationIds().get(lineId), Integer.valueOf(lineId));
-    }
+    then(aBusRoute.getStationIds().size()).isEqualTo(4);
+    then(aBusRoute.getStationIds().get(0)).isEqualTo(3);
+    then(aBusRoute.getStationIds().get(1)).isEqualTo(1);
+    then(aBusRoute.getStationIds().get(2)).isEqualTo(6);
+    then(aBusRoute.getStationIds().get(3)).isEqualTo(5);
   }
 
-  @Test(expected = NullPointerException.class)
-  public void testWithoutPathname() {
-    BusRouteDataFileUtil.createBusRouteDataCache(null);
+  @Test
+  public void shouldFailWithoutPathToFile() {
+    // when
+    final Throwable result = catchThrowable(() -> BusRouteDataFileUtil.createBusRouteDataCache(null));
+
+    // then
+    then(result).isInstanceOf(NullPointerException.class);
+    then(result.getMessage()).contains("path-name is required");
   }
 
-  @Test(expected = com.uwefuchs.demo.goeuro.exceptions.IOException.class)
-  public void testWithInvalidPathname() {
-    BusRouteDataFileUtil.createBusRouteDataCache("someInvalidPathName");
+  @Test
+  public void shouldFailWithInvalidPathToFile() {
+    // when
+    final Throwable result = catchThrowable(()
+        -> BusRouteDataFileUtil.createBusRouteDataCache("someInvalidPathName"));
+
+    // then
+    then(result).isInstanceOf(com.uwefuchs.demo.goeuro.exceptions.IOException.class);
+    then(result.getMessage()).contains("IOException when reading data-file");
   }
 
-  @Test(expected = DataConstraintViolationException.class)
-  public void testWithoutStations()
-      throws IOException {
-    final String pathname = createTempDataFile(Arrays.asList("1", "1"));
-    BusRouteDataFileUtil.createBusRouteDataCache(pathname);
+  @Test
+  public void shouldFailWithoutStationsInRoute() throws IOException {
+    // given
+    final String pathToTmpDataFile = FileOperationsHelper.createTempDataFile(Arrays.asList("1", "0"));
+
+    // when
+    final Throwable result = catchThrowable(() -> BusRouteDataFileUtil.createBusRouteDataCache(pathToTmpDataFile));
+
+    // then
+    then(result).isInstanceOf(InconsistentDataException.class);
+    then(result.getMessage()).contains("Number of stations not within bounds");
   }
 
-  @Test(expected = DataConstraintViolationException.class)
-  public void testWithNonUniqueBusRouteIds()
-      throws IOException {
-    String testFile = createTempDataFile(Arrays.asList("2", "0 1 2", "0 3 4"));
-    BusRouteDataFileUtil.createBusRouteDataCache(testFile);
+  @Test
+  public void shouldFailWithNonUniqueBusRouteIds() throws IOException {
+    // given
+    String pathToTmpDataFile = FileOperationsHelper.createTempDataFile(Arrays.asList("2", "0 1 2", "0 3 4"));
+
+    // when
+    final Throwable result = catchThrowable(() -> BusRouteDataFileUtil.createBusRouteDataCache(pathToTmpDataFile));
+
+    // then
+    then(result).isInstanceOf(DataConstraintViolationException.class);
+    then(result.getMessage()).contains("double occurrence of bus-route-id [0]");
   }
 
-  @Test(expected = DataConstraintViolationException.class)
-  public void testWithNonUniqueStationIds()
-      throws IOException {
-    String testFile = createTempDataFile(Arrays.asList("1", "0 0 1 1 3 4"));
-    BusRouteDataFileUtil.createBusRouteDataCache(testFile);
+  @Test
+  public void shouldFailWithNonUniqueStationIds() throws IOException {
+    // given
+    String pathToTmpDataFile = FileOperationsHelper.createTempDataFile(Arrays.asList("1", "0 0 1 1 3 4"));
+
+    // when
+    final Throwable result = catchThrowable(() -> BusRouteDataFileUtil.createBusRouteDataCache(pathToTmpDataFile));
+
+    // then
+    then(result).isInstanceOf(DataConstraintViolationException.class);
+    then(result.getMessage()).contains("double occurrence of station-id [1]");
   }
 
-  @Test(expected = DataConstraintViolationException.class)
-  public void testTooManyStations()
-      throws IOException {
-    String testLine = BusRouteDataTestHelper.generateBusRoute(1, BusRouteDataFileUtil.MAX_NUMBER_OF_STATIONS_PER_ROUTE + 1);
-    String pathname = createTempDataFile(Arrays.asList("1", testLine));
-    BusRouteDataFileUtil.createBusRouteDataCache(pathname);
+  @Test
+  public void shouldFailWithTooManyStations() throws IOException {
+    // given
+    String testLine = BusRouteDataTestHelper.generateBusRoute(1,
+        BusRouteDataFileUtil.MAX_NUMBER_OF_STATIONS_PER_ROUTE + 1);
+    String pathToTmpDataFile = FileOperationsHelper.createTempDataFile(Arrays.asList("1", testLine));
+
+    // when
+    final Throwable result = catchThrowable(() -> BusRouteDataFileUtil.createBusRouteDataCache(pathToTmpDataFile));
+
+    // then
+    then(result).isInstanceOf(InconsistentDataException.class);
+    then(result.getMessage()).contains("Number of stations not within bounds");
   }
 
-  @Test(expected = DataConstraintViolationException.class)
-  public void testTooLessStations()
-      throws IOException {
-    String testLine = BusRouteDataTestHelper.generateBusRoute(1, BusRouteDataFileUtil.MIN_NUMBER_OF_STATIONS_PER_ROUTE - 1);
-    String pathname = createTempDataFile(Arrays.asList("1", testLine));
-    BusRouteDataFileUtil.createBusRouteDataCache(pathname);
+  @Test
+  public void shouldFailWithTooLessStations() throws IOException {
+    // given
+    String testLine = BusRouteDataTestHelper.generateBusRoute(1,
+        BusRouteDataFileUtil.MIN_NUMBER_OF_STATIONS_PER_ROUTE - 1);
+    String pathToTmpDataFile = FileOperationsHelper.createTempDataFile(Arrays.asList("1", testLine));
+
+    // when
+    final Throwable result = catchThrowable(() -> BusRouteDataFileUtil.createBusRouteDataCache(pathToTmpDataFile));
+
+    // then
+    then(result).isInstanceOf(InconsistentDataException.class);
+    then(result.getMessage()).contains("Number of stations not within bounds");
   }
 
-  @Test(expected = DataConstraintViolationException.class)
-  public void testTooLessBusRoutes()
-      throws IOException {
-    final List<String> testData = BusRouteDataTestHelper.generateListOfBusRoutes(1, 100);
-    String pathname = createTempDataFile(testData);
-    final List<BusRoute> busRouteList = BusRouteDataFileUtil.createBusRouteDataCache(pathname);
+  @Test
+  public void shouldFailWithTooLessBusRoutes() throws IOException {
+    // given
+    String pathToTmpDataFile = FileOperationsHelper.createTempDataFile(Arrays.asList("0", ""));
 
-    assertEquals(1, busRouteList.size());
+    // when
+    final Throwable result = catchThrowable(() -> BusRouteDataFileUtil.createBusRouteDataCache(pathToTmpDataFile));
 
-    pathname = createTempDataFile(Arrays.asList("0", ""));
-    BusRouteDataFileUtil.createBusRouteDataCache(pathname);
+    // then
+    then(result).isInstanceOf(InconsistentDataException.class);
+    then(result.getMessage()).contains("Number of bus-routes not within bounds");
   }
 
-  @Ignore
+  @Test
+  public void shouldFailWithEmptyDataFile() throws IOException {
+    // given
+    final String pathToTmpDataFile = FileOperationsHelper.createTempDataFile(new ArrayList<>());
+
+    // when
+    final Throwable result = catchThrowable(() -> BusRouteDataFileUtil.createBusRouteDataCache(pathToTmpDataFile));
+
+    // then
+    then(result).isInstanceOf(InconsistentDataException.class);
+    then(result.getMessage()).contains("No data found in given file");
+  }
+
+  @Test
+  public void shouldFailWithNonNumericNumberOfStations() throws IOException {
+    // given
+    final String pathToTmpDataFile = FileOperationsHelper.createTempDataFile(Arrays.asList("someNonNumericValue", "0 0 1 2"));
+
+    // when
+    final Throwable result = catchThrowable(() -> BusRouteDataFileUtil.createBusRouteDataCache(pathToTmpDataFile));
+
+    // then
+    then(result).isInstanceOf(InconsistentDataException.class);
+    then(result.getMessage()).contains("InputMismatchException");
+  }
+
+  @Test
+  public void shouldFailWithNonNumericStationId() throws IOException {
+    // given
+    final String pathToTmpDataFile = FileOperationsHelper.createTempDataFile(Arrays.asList("1", "someNonNumericValue 0 1 2"));
+
+    // when
+    final Throwable result = catchThrowable(() -> BusRouteDataFileUtil.createBusRouteDataCache(pathToTmpDataFile));
+
+    // then
+    then(result).isInstanceOf(InconsistentDataException.class);
+    then(result.getMessage()).contains("InputMismatchException");
+  }
+
+  @Test
+  public void shouldFailWithOtherNumberOfBusRoutes() throws IOException {
+    // given
+    final String pathToTmpDataFile = FileOperationsHelper.createTempDataFile(Arrays.asList("1", "0 0 1 2 3 4", "1 3 1 6 5"));
+
+    // when
+    final Throwable result = catchThrowable(() -> BusRouteDataFileUtil.createBusRouteDataCache(pathToTmpDataFile));
+
+    // then
+    then(result).isInstanceOf(InconsistentDataException.class);
+    then(result.getMessage()).contains("Real number [2] of bus-routes differs from announced number [1]");
+  }
+
+  /*  @Ignore
   @Test(expected = DataConstraintViolationException.class)
   public void testTooManyBusRoutes()
       throws IOException {
     List<String> testData = BusRouteDataTestHelper
         .generateListOfBusRoutes(BusRouteDataFileUtil.MAX_NUMBER_OF_BUS_ROUTES + 1, 100);
-    String pathname = createTempDataFile(testData);
+    String pathname = FileOperationsHelper.createTempDataFile(testData);
     BusRouteDataFileUtil.createBusRouteDataCache(pathname);
   }
-
-  @Test(expected = InconsistentDataException.class)
-  public void testWithEmptyFile()
-      throws IOException {
-    final String pathname = createTempDataFile(new ArrayList<>());
-    BusRouteDataFileUtil.createBusRouteDataCache(pathname);
-  }
-
-  @Test(expected = InconsistentDataException.class)
-  public void testWithNonNumericSingleValue()
-      throws IOException {
-    final String pathname = createTempDataFile(Arrays.asList("someNonNumericValue", "0 0 1 2"));
-    BusRouteDataFileUtil.createBusRouteDataCache(pathname);
-  }
-
-  @Test(expected = InconsistentDataException.class)
-  public void testWithNonNumericValueInList()
-      throws IOException {
-    final String pathname = createTempDataFile(Arrays.asList("1", "someNonNumericValue 0 1 2"));
-    BusRouteDataFileUtil.createBusRouteDataCache(pathname);
-  }
-
-  @Test(expected = InconsistentDataException.class)
-  public void testNumberOfBusRoutesNotAsAnnounced()
-      throws IOException {
-    final String pathname = createTempDataFile(Arrays.asList("1", "0 0 1 2 3 4", "1 3 1 6 5"));
-    BusRouteDataFileUtil.createBusRouteDataCache(pathname);
-  }
+*/
 }
