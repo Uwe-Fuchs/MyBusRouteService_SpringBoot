@@ -1,18 +1,19 @@
 package com.uwefuchs.demo.goeuro.persistence;
 
+import com.google.common.base.Preconditions;
 import com.uwefuchs.demo.goeuro.model.domain.BusRoute;
-import java.util.Collections;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class InMemoryBusRouteRepositoryImpl implements IBusRouteRepository {
 
-  @Value("${pathname}")
-  private String pathname;
+  private final List<BusRoute> cachedBusRoutes;
 
-  private final List<BusRoute> cachedBusRoutes = Collections.emptyList();
+  public InMemoryBusRouteRepositoryImpl(final List<BusRoute> cachedBusRoutes) {
+    Preconditions.checkNotNull(cachedBusRoutes, "cachedBusRoutes is required!");
+    this.cachedBusRoutes = cachedBusRoutes;
+  }
 
   @Override
   public List<BusRoute> deliverAllBusRoutes() {
