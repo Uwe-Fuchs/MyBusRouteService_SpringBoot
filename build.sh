@@ -1,3 +1,3 @@
 #!/bin/sh
 
-mvn clean package -DskipTests
+mvn clean package
